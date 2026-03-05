@@ -1,0 +1,100 @@
+{% extends 'base.html' %}
+{% block title %}Dashboard{% endblock %}
+
+{% block content %}
+<h1>Budget Dashboard</h1>
+
+
+<div class="budget-summary">
+  <h2>Budget Overview</h2>
+
+  <p><strong>Total Budget:</strong> ${{ total_budget|default:"0.00" }}</p>
+  <p><strong>Total Expenses:</strong> ${{ total_expenses|default:"0.00" }}</p>
+  <p><strong>Remaining:</strong> ${{ remaining_balance|default:"0.00" }}</p>
+</div>
+
+<hr>
+
+
+<h2>Expenses</h2>
+
+<table border="1" cellpadding="8">
+  <tr>
+    <th>Name</th>
+    <th>Type</th>
+    <th>Amount</th>
+    <th>Date</th>
+    <th>Frequency</th>
+    <th>Action</th>
+  </tr>
+
+  {% for expense in expenses %}
+  <tr>
+    <td>{{ expense.expense_name }}</td>
+    <td>{{ expense.expense_type }}</td>
+    <td>${{ expense.amount }}</td>
+    <td>{{ expense.date }}</td>
+    <td>{{ expense.frequency }}</td>
+    <td>
+        <button onclick="toggleEdit({{ expense.id }})">Edit</button>
+        <!-- <button onclick="toggleEdit({{ expense.id }})">Delete</button> -->
+    </td>
+    <!-- <td>
+        <a href="{% url 'edit_expense' expense.id expenses.number %}">Edit</a>
+    </td> -->
+
+  </tr>
+    <!-- Hidden Edit Row -->
+    <tr id="edit-row-{{ expense.id }}" style="display: none;">
+        <td colspan="6">
+            <form method="POST" action="{% url 'edit_expense' expense.id expenses.number %}">
+                {% csrf_token %}
+                <input type="text" name="expense_name" value="{{ expense.expense_name }}">
+                <input type="text" name="expense_type" value="{{ expense.expense_type }}">
+                <input type="number" name="amount" value="{{ expense.amount }}">
+                <input type="date" name="date" value="{{ expense.date|date:'Y-m-d' }}">
+                <input type="text" name="frequency" value="{{ expense.frequency }}">
+                <button type="submit">Save</button>
+            </form>
+            <form method="POST" action="{% url 'delete_expense' expense.id expenses.number %}">
+                {% csrf_token %}
+                <button type="submit" onclick="return confirm('Are you sure?')">Delete</button>
+            </form>
+        </td>
+    </tr>
+    {% empty %}
+    <tr>
+        <td colspan="5">No expenses added yet.</td>
+    </tr>
+  {% endfor %}
+</table>
+
+<script>
+
+
+function toggleEdit(id) {
+    const row = document.getElementById("edit-row-" + id);
+    if (row.style.display === "none") {
+        row.style.display = "table-row";
+    } else {
+        row.style.display = "none";
+    }
+}
+</script>
+
+<!-- ============================= -->
+<!-- Pagination -->
+<!-- ============================= -->
+<div class="pagination">
+  {% if expenses.has_previous %}
+    <a href="?page={{ expenses.previous_page_number }}">Previous</a>
+  {% endif %}
+
+  <span>Page {{ expenses.number }} of {{ expenses.paginator.num_pages }}</span>
+
+  {% if expenses.has_next %}
+    <a href="?page={{ expenses.next_page_number }}">Next</a>
+  {% endif %}
+</div>
+
+{% endblock %}

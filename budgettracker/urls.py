@@ -16,9 +16,20 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
-from expenses.views import hello
+from expenses.views import add_expense
+from expenses.views import delete_expense
+from expenses.views import edit_expense
+from expenses.views import search_expense
+from expenses.views import index
+
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
-    path('', hello)
+    # path('admin/', admin.site.urls),
+    path('', index, name="index"),
+    path('add/', add_expense, name="add_expense"),
+    path('search/', search_expense, name='search_expense'),
+    path('edit_expense/<int:expense_id>/<int:page_number>/',
+          edit_expense, name='edit_expense'),
+    path('delete_expense/<int:expense_id>/<int:page_number>/',
+          delete_expense, name="delete_expense"),
 ]

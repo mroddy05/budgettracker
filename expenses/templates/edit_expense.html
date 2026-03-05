@@ -1,0 +1,82 @@
+{% extends 'base.html' %}
+{% block title %}Edit Expenses{% endblock %}
+
+{% block content %}
+<div>
+  <h1>Edit Expenses</h1>
+
+  <!-- Table for displaying expenses -->
+  <table border="1" cellspacing="0" cellpadding="4">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Name</th>
+        <th>Type</th>
+        <th>Amount</th>
+        <th>Date</th>
+        <th>Description</th>
+        <th>Frequency</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for expense in expenses %}
+      <tr id="expense-row-{{ expense.id }}" {% if success and expense.id == updated_expense_id %} style="background-color: #d4edda;" {% endif %}>
+        <form method="POST" action="{% url 'edit_expense' expense.id expenses.number %}">
+          {% csrf_token %}
+          <!-- Hidden field to pass the page number -->
+          <input type="hidden" name="page" value="{{ expenses.number }}" />
+          <td>{{ expense.id }}</td>
+          <td><input type="text" name="expense_name" value="{{ expense.expense_name }}" /></td>
+          <td><input type="text" name="expense_type" value="{{ expense.expense_type }}" /></td>
+          <td><input type="number" name="amount" value="{{ expense.amount }}" /></td>
+          <td><input type="date" name="date" value="{{ expense.date }}" /></td>
+          <td><input type="text" name="description" value="{{ expense.description }}" /></td>
+          <td><input type="text" name="frequency" value="{{ expense.frequency }}" /></td>
+          <td>
+            <button type="submit">Save</button>
+        </form>
+        <form method="POST" action="{% url 'delete_expense' expense.id expenses.number %}" onsubmit="return confirm('Are you sure you want to delete this expense?');" style="display: inline-block;">
+          {% csrf_token %}
+          <button type="submit">Delete</button>
+        </form>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  <!-- Pagination controls -->
+<nav>
+  <ul>
+    {% if expenses.has_previous %}
+    <li><a href="?page=1">First</a></li>
+    <li><a href="?page={{ expenses.previous_page_number }}">Previous</a></li>
+    {% endif %}
+    
+    <li>
+      <span>Page {{ expenses.number }} of {{ expenses.paginator.num_pages }}</span>
+    </li>
+    
+    {% if expenses.has_next %}
+    <li><a href="?page={{ expenses.next_page_number }}">Next</a></li>
+    <li><a href="?page={{ expenses.paginator.num_pages }}">Last</a></li>
+    {% endif %}
+  </ul>
+</nav>
+</div>
+
+{% if success %}
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const updatedRow = document.getElementById('expense-row-{{ updated_expense_id }}');
+      if (updatedRow) {
+        updatedRow.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        updatedRow.style.backgroundColor = '#d4edda';
+        setTimeout(() => {
+          updatedRow.style.backgroundColor = '';
+        }, 3000);
+      }
+    });
+  </script>
+{% endif %}
+{% endblock %}

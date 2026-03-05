@@ -1,0 +1,103 @@
+{% extends 'base.html' %} {% block title %}Search Expense{% endblock %}
+<!-- -->
+{% block content %}
+<div>
+  <h1>Search Expense</h1>
+  <form method="POST">
+    {% csrf_token %}
+    <div>
+      <label for="expense_name">Name:</label>
+      <input type="text" id="expense_name" name="expense_name" value="{{ expense_name_query }}" />
+    </div>
+    <div>
+      <label for="expense_type">Type:</label>
+      <input type="text" id="expense_type" name="expense_type" value="{{ expense_type_query }}" />
+    </div>
+    <div>
+      <label for="amount">Amount:</label>
+      <input type="number" id="amount" name="amount" value="{{ amount_query }}" />
+    </div>
+    <div>
+      <label for="date">Date:</label>
+      <input type="date" id="date" name="date" value="{{ date_query }}" />
+    </div>
+    <div>
+      <label for="description">Description:</label>
+      <input type="text" id="description" name="description" value="{{ description_query }}" />
+    </div>
+    <div>
+      <label for="frequency">Frequency:</label>
+      <input type="text" id="frequency" name="frequency" value="{{ frequency_query }}" />
+    </div>
+    <button type="submit">Search Expense</button>
+  </form>
+
+  <!-- Search Results -->
+  {% if expenses %}
+  <div>
+    <h2>Search Results</h2>
+    <p>Query: {{ expense_name_query }} {{ expense_type_query }} {{ amount_query }} {{ date_query }} {{ description_query }} {{ frequency_query }}</p>
+    <ul>
+      {% for expense in expenses %}
+      <li>
+        <div>
+          <span>{{ expense.expense_name }}</span>
+          <span>{{ expense.expense_type }}</span>
+          <span>{{ expense.amount }}</span>
+          <span>{{ expense.date }}</span>
+          <span>{{ expense.description }}</span>
+          <span>{{ expense.frequency }}</span>
+        </div>
+      </li>
+      {% endfor %}
+    </ul>
+
+    <!-- Pagination Controls -->
+    <nav>
+      <ul>
+        {% if expenses.has_previous %}
+        <li>
+          <a href="?page=1&expense_name={{ expense_name_query }}&expense_type={{ expense_type_query }}&amount={{ amount_query }}
+                    &date={{ date_query }}&frequency={{ frequency_query }}&description={{ description_query }}"
+            >First</a
+          >
+        </li>
+        <li>
+          <a
+            href="?page={{ expenses.previous_page_number }}&expense_name={{ expense_name_query }}&expense_type={{ expense_type_query }}&amount={{ amount_query }}
+                    &date={{ date_query }}&frequency={{ frequency_query }}&description={{ description_query }}"
+            >Previous</a
+          >
+        </li>
+        {% endif %}
+        <li>
+          <span>
+            Page {{ expenses.number }} of {{ expenses.paginator.num_pages }}
+          </span>
+        </li>
+        {% if expenses.has_next %}
+        <li>
+          <a
+            href="?page={{ expenses.previous_page_number }}&expense_name={{ expense_name_query }}&expense_type={{ expense_type_query }}&amount={{ amount_query }}
+                    &date={{ date_query }}&frequency={{ frequency_query }}&description={{ description_query }}"
+            >Next</a
+          >
+        </li>
+        <li>
+          <a
+            href="?page={{ expenses.previous_page_number }}&expense_name={{ expense_name_query }}&expense_type={{ expense_type_query }}&amount={{ amount_query }}
+                    &date={{ date_query }}&frequency={{ frequency_query }}&description={{ description_query }}"
+            >Last</a
+          >
+        </li>
+        {% endif %}
+      </ul>
+    </nav>
+  </div>
+
+  {% elif request.method == "POST" and not expenses %}
+  <!-- No Results Message -->
+  <div>No expenses found. Please try again.</div>
+  {% endif %}
+</div>
+{% endblock %}

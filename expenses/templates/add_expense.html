@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+{% block title %}Add Expense{% endblock %}
+{% block content %}
+<h1>Add a New Expense</h1>
+<!-- Expense Form -->
+<form method="POST">
+  {% csrf_token %}
+  {{ form.as_p }}
+  <button type="submit">Add Expense</button>
+</form>
+<!-- Success Message -->
+{% if success %}
+<p><strong>Success!</strong> The expense has been successfully added.</p>
+<!-- Display Added Contact -->
+<h3>Expense Added</h3>
+<p>
+  <strong>Name:</strong> {{ added_expense.expense_name }} <br />
+  <strong>Type:</strong> {{ added_expense.expense_type }} <br />
+  <strong>Amount:</strong> {{ added_expense.amount }} <br />
+  <strong>Date:</strong> {{ added_expense.date }} <br />
+  <strong>Description:</strong> {{ added_expense.description }} <br />
+  <strong>Frequency:</strong> {{ added_expense.frequency }}
+</p>
+{% endif %}
+{% endblock %}
