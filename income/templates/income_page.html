@@ -1,0 +1,95 @@
+{% extends 'base.html' %}
+{% block title %}Income Overview{% endblock %}
+
+{% block content %}
+<h1>Income Overview</h1>
+<p><strong>Total Monthly Income:</strong> ${{ total_income|default:"0.00" }}</p>
+
+<hr>
+
+<h1>All Income</h1>
+
+<button onclick="toggleNew()">New Income</button>
+
+<table border="1" cellpadding="8">
+  <tr>
+    <th>Name</th>
+    <th>Amount</th>
+    <th>Date</th>
+    <th>Frequency</th>
+    <th>Action</th>
+  </tr>
+
+  <!-- Hidden Add Row -->
+    <tr id="add_row"style="display: none;">
+        <td colspan="6">
+            <form method="POST" action="{% url 'add_income' %}">
+                {% csrf_token %}
+                <input type="text" name="income_name" >
+                <input type="number" name="amount" >
+                <input type="date" name="date" >
+                <input type="" name="frequency" value ="{{ income.frequency}}" >
+                <button type="submit">Add Income</button>
+            </form>
+            <form>
+                <button type="button" onclick="toggleNew()">Cancel</button>
+            </form>
+        </td>
+    </tr>
+
+  {% for income in incomes %}
+  <tr>
+    <td>{{ income.income_name }}</td>
+    <td>{{ income.amount }}</td>
+    <td>{{ income.date }}</td>
+    <td>{{ income.frequency }}</td>
+    <td>
+        <button onclick="toggleEdit({{ income.id }})">Edit</button>
+    </td>
+    </tr>
+
+    <!-- Hidden Edit Row -->
+    <tr id="edit-row-{{ income.id }}" style="display: none;">
+        <td colspan="6">
+            <form method="POST" action="{% url 'edit_income' income.id incomes.number %}">
+                {% csrf_token %}
+                <input type="text" name="income_name" value="{{ income.income_name }}">
+                <input type="number" name="amount" value="{{ income.amount }}">
+                <input type="date" name="date" value="{{ income.date|date:'Y-m-d' }}">
+                <input type="text" name="frequency" value="{{ income.frequency }}">
+                <button type="submit">Save</button>
+            </form>
+            <form method="POST" action="{% url 'delete_income' income.id incomes.number %}">
+                {% csrf_token %}
+                <button type="submit" onclick="return confirm('Are you sure?')">Delete</button>
+            </form>
+        </td>
+    </tr>
+
+    {% empty %}
+    <tr>
+        <td colspan="5">No expenses added yet.</td>
+    </tr>
+  {% endfor %}
+</table>
+
+<script>
+function toggleEdit(id) {
+    const row = document.getElementById("edit-row-" + id);
+    if (row.style.display === "none") {
+        row.style.display = "table-row";
+    } else {
+        row.style.display = "none";
+    }
+}
+
+function toggleNew() {
+    const row = document.getElementById("add_row");
+    if (row.style.display === "none") {
+        row.style.display = "table-row";
+    } else {
+        row.style.display = "none";
+    }
+}
+</script>
+{% endblock %}

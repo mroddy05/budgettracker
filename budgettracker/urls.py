@@ -15,7 +15,7 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
-from django.urls import path
+from django.urls import path, include
 from expenses.views import add_expense
 from expenses.views import delete_expense
 from expenses.views import edit_expense
@@ -32,4 +32,5 @@ urlpatterns = [
           edit_expense, name='edit_expense'),
     path('delete_expense/<int:expense_id>/<int:page_number>/',
           delete_expense, name="delete_expense"),
+    path('income/', include('income.urls')), 
 ]
