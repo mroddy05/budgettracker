@@ -1,0 +1,49 @@
+{% extends 'base.html' %}
+{% block title %}Budget Overview{% endblock %}
+
+{% block content %}
+
+<div class="container mt-4">
+<h1 class="mb-4 text-center">Chosen Budget:</h1>
+
+
+<div class="card bg-light p-2 text-center mb-4">
+    {% for budget in budgets %}
+    <p><strong>{{budget.category}}:</strong> {{ budget.percentage }}%</p>
+    {% empty %}
+    <p><strong>No Budget Set</strong></p>
+    {% endfor %}
+</div>
+
+
+
+
+<h2 class="mb-4 text-center">Set Budget</h2>
+<div class="mb-2 text-center d-flex justify-content-center flex-wrap gap-2">
+<form method="POST" action="{% url 'balanced_budget' %}">
+    {% csrf_token %}
+    <button type="submit" class="btn btn-success btn-sm ">Balanced</button>
+</form>
+<form method="POST" action="{% url 'conservative_budget' %}">
+    {% csrf_token %}
+    <button type="submit" class="btn btn-success btn-sm ">Conservative</button>
+</form>
+<form method="POST" action="{% url 'student_budget' %}">
+    {% csrf_token %}
+    <button type="submit" class="btn btn-success btn-sm">Student Budget</button>
+</form>
+<form method="POST" action="{% url 'high_living_budget' %}" >
+    {% csrf_token %}
+    <button type="submit" class="btn btn-success btn-sm">High Living</button>
+</form>
+<a href="{% url 'custom_budget' %}">
+    {% csrf_token %}
+    <button type="button" class="btn btn-success btn-sm">Custom</button>
+</a>
+</div>
+
+</div>
+
+
+
+{% endblock %}
