@@ -1,0 +1,26 @@
+/* Custom Sidebar Styling */
+.sidebar {
+    height: 100vh; /* Full screen height */
+    background-color: #d3d7da; /* Light gray background */
+    padding: 1rem;
+    position: fixed; /* Fixed on the left */
+    width: 180px;
+    margin-right: 2px;
+}
+.content {
+    margin-left: 260px; /* Prevent content overlap with sidebar */
+    padding: 2rem;
+}
+.input-uniform {
+    width: 150px;       
+    display: inline-block; 
+    margin-bottom: 1.0rem;
+}
+
+.under-budget{
+    background-color:green;
+}
+
+.over-budget{
+    background-color:red;
+}

@@ -4,9 +4,69 @@ from django.http import HttpResponse
 from django.core.paginator import Paginator
 from .models import Expense
 from .forms import ExpenseForm
+from budget.models import Budget
+from income.models import Income
+from datetime import date
+from django.db.models import Sum
+
+
+def balanced_budget():
+    Budget.objects.all().delete()
+
+    budgets = {
+            "FOOD": 0.15,
+            "TRAVEL": 0.10,
+            "HOUSING": 0.30,
+            "UTILITIES": 0.10,
+            "HEALTH": 0.10,
+            "EDUCATION": 0.10,
+            "MISC": 0.15
+        }
+        
+    for category, percent in budgets.items():
+        Budget.objects.create(category=category, percentage=percent)
+
+
+def budget_overview_values():
+    today = date.today()
+    curr_month = today.month
+    curr_year = today.year
+
+    total_monthly_income = Income.objects.filter(
+        date__month=curr_month,
+        date__year=curr_year
+    ).aggregate(total=Sum('amount'))['total'] or 0  
+
+    
+    budget_values = Budget.objects.all()
+    if not budget_values.exists():
+        balanced_budget()
+        budget_values = Budget.objects.all()
+
+    budget_overview = {}
+    for budget in budget_values:
+        allowed = float(budget.percentage) * float(total_monthly_income)
+        spent = Expense.objects.filter(
+            expense_type=budget.category,
+            date__month=curr_month,
+            date__year=curr_year
+        ).aggregate(total=Sum('amount'))['total'] or 0    
+
+
+        budget_overview[budget.category] = {"allowed": allowed, "spent": spent}
+    
+    
+    total_expenses = Expense.objects.filter(
+        date__month=curr_month,
+        date__year=curr_year
+    ).aggregate(total=Sum('amount'))['total'] or 0
+
+    return (budget_overview, total_monthly_income, total_expenses)
+
 
 def index(request):
-    expense_list = Expense.objects.all().order_by('date')
+    budget_overview, total_monthly_income, total_expenses = budget_overview_values()  
+    expense_list = Expense.objects.all().order_by('-date')
     paginator = Paginator(expense_list, 10)
     page_number = request.GET.get('page', 1)
     page_obj = paginator.get_page(page_number)
@@ -16,6 +76,9 @@ def index(request):
         "index.html",
         {
             "expenses": page_obj,
+            "budget_overview": budget_overview,
+            "total_monthly_income": total_monthly_income,
+            "total_expenses": total_expenses
         },
     )
 
@@ -65,7 +128,7 @@ def search_expense(request):
 
         page_number = 1
 
-    expenses = Expense.objects.all().order_by("date")
+    expenses = Expense.objects.all().order_by("-date")
 
     if expense_name:
         expenses = expenses.filter(expense_name__icontains=expense_name)
@@ -82,7 +145,7 @@ def search_expense(request):
     if date:
         expenses = expenses.filter(date=date)
 
-    expenses = expenses.order_by("date")
+    expenses = expenses.order_by("-date")
     
     paginator = Paginator(expenses, 10)
     page_obj = paginator.get_page(page_number)
@@ -95,7 +158,9 @@ def search_expense(request):
          "expense_type_query": expense_type,
          "amount_query": amount,
          "date_query": date,
-         "frequency_query": frequency},
+         "frequency_query": frequency,
+         "type_choices": Expense.expenseTypes,
+         "frequency_choices": Expense.frequencyTypes},
     )
 
 def edit_expense(request, expense_id, page_number):
@@ -109,7 +174,6 @@ def edit_expense(request, expense_id, page_number):
         expense_type = request.POST.get("expense_type")
         amount = request.POST.get("amount")
         date = request.POST.get("date")
-        description = request.POST.get("description")
         frequency = request.POST.get("frequency")
 
         
@@ -118,22 +182,25 @@ def edit_expense(request, expense_id, page_number):
         expense.expense_type = expense_type
         expense.amount = amount
         expense.date = date
-        expense.description = description
         expense.frequency = frequency
 
         expense.save()
         success = True
 
-    expense_list = Expense.objects.all().order_by("date")
+    expense_list = Expense.objects.all().order_by("-date")
     paginator = Paginator(expense_list, 10)
     page_number = request.POST.get(
         "page", request.GET.get("page", page_number)
     )
     page_obj = paginator.get_page(page_number)
+    budget_overview, total_monthly_income, total_expenses = budget_overview_values()
     return render(
         request,
         "index.html",
         {
+        "budget_overview": budget_overview,
+        "total_monthly_income": total_monthly_income,
+        "total_expenses": total_expenses,
         "expenses": page_obj,
         "success": success,
         "updated_expense_id": expense_id,

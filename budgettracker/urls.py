@@ -33,4 +33,5 @@ urlpatterns = [
     path('delete_expense/<int:expense_id>/<int:page_number>/',
           delete_expense, name="delete_expense"),
     path('income/', include('income.urls')), 
+    path('budget/', include('budget.urls')),
 ]

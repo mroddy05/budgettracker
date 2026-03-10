@@ -5,24 +5,36 @@ from django.core.paginator import Paginator
 from .models import Income
 from .forms import IncomeForm
 from django.urls import reverse
+from datetime import date
+from django.db.models import Sum
 
 def index(request):
-    income_list = Income.objects.all().order_by('date')
+    today = date.today()
+    curr_month = today.month
+    curr_year = today.year
+    income_list = Income.objects.all().order_by('-date')
     paginator = Paginator(income_list, 10)
     page_number = request.GET.get('page', 1)
     page_obj = paginator.get_page(page_number)
+
+    total_income = Income.objects.filter(
+        date__month=curr_month,
+        date__year=curr_year
+    ).aggregate(total=Sum('amount'))['total'] or 0
 
     return render(
         request, 
         "income_page.html",
         {
             "incomes" : page_obj,
+            "frequencyTypes": Income.frequencyTypes,
+            "total_income": total_income,
         },
     )
 
 def add_income(request):
     success = False
-    added_expense = None
+    added_income = None
 
     if request.method == "POST":
         form = IncomeForm(request.POST)
@@ -36,7 +48,7 @@ def add_income(request):
     else:
         form = IncomeForm()
     
-    income_list = Income.objects.all().order_by('date')
+    income_list = Income.objects.all().order_by('-date')
     paginator = Paginator(income_list, 10)
     page_number = request.GET.get('page', 1)
     page_obj = paginator.get_page(page_number)
@@ -45,7 +57,9 @@ def add_income(request):
         "income_page.html", 
         {"form": form,
          "added_income": added_income,
-         "success": success},
+         "success": success,
+         "incomes": page_obj,
+         "frequencyTypes": Income.frequencyTypes},
     )
 
 
@@ -72,7 +86,7 @@ def edit_income(request, income_id, page_number):
         success = True
 
 
-    income_list = Income.objects.all().order_by("date")
+    income_list = Income.objects.all().order_by("-date")
     paginator = Paginator(income_list, 10)
     page_number = request.POST.get(
         "page", request.GET.get("page", page_number)
@@ -85,6 +99,7 @@ def edit_income(request, income_id, page_number):
         "incomes": page_obj,
         "success": success,
         "updated_income_id": income_id,
+        "frequencyTypes": Income.frequencyTypes,
     },
     )
 

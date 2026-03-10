@@ -1,25 +1,35 @@
 {% extends 'base.html' %}
 {% block title %}Add Expense{% endblock %}
 {% block content %}
-<h1>Add a New Expense</h1>
-<!-- Expense Form -->
-<form method="POST">
-  {% csrf_token %}
-  {{ form.as_p }}
-  <button type="submit">Add Expense</button>
-</form>
-<!-- Success Message -->
-{% if success %}
-<p><strong>Success!</strong> The expense has been successfully added.</p>
-<!-- Display Added Contact -->
-<h3>Expense Added</h3>
-<p>
-  <strong>Name:</strong> {{ added_expense.expense_name }} <br />
-  <strong>Type:</strong> {{ added_expense.expense_type }} <br />
-  <strong>Amount:</strong> {{ added_expense.amount }} <br />
-  <strong>Date:</strong> {{ added_expense.date }} <br />
-  <strong>Description:</strong> {{ added_expense.description }} <br />
-  <strong>Frequency:</strong> {{ added_expense.frequency }}
-</p>
-{% endif %}
+
+<div class="container mt-4">
+  <h1 class="mb-4 text-center">Add a New Expense</h1>
+  <!-- Expense Form -->
+  <div class="card p-3 mb-4">
+    <form method="POST">
+      {% csrf_token %}
+      {{ form.as_p }}
+      <div class="text-center">
+        <button type="submit" class="btn btn-primary btn-sm">Add Expense</button>
+      </div>
+    </form>
+  </div>
+  <!-- Success Message -->
+  {% if success %}
+  <div class="alert alert-success">
+    <p><strong>Success!</strong> The expense has been successfully added.</p>
+  </div>
+  <!-- Display Added Contact -->
+  <div class="card p-3 mt-3">
+    <h3 class="mb-3">Expense Added</h3>
+    <p>
+      <strong>Name:</strong> {{ added_expense.expense_name }} <br />
+      <strong>Type:</strong> {{ added_expense.expense_type }} <br />
+      <strong>Amount:</strong> {{ added_expense.amount }} <br />
+      <strong>Date:</strong> {{ added_expense.date }} <br />
+      <strong>Frequency:</strong> {{ added_expense.frequency }}
+    </p>
+  </div>
+  {% endif %}
+</div>
 {% endblock %}

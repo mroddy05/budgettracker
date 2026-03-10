@@ -1,103 +1,126 @@
 {% extends 'base.html' %} {% block title %}Search Expense{% endblock %}
 <!-- -->
 {% block content %}
-<div>
-  <h1>Search Expense</h1>
-  <form method="POST">
-    {% csrf_token %}
-    <div>
-      <label for="expense_name">Name:</label>
-      <input type="text" id="expense_name" name="expense_name" value="{{ expense_name_query }}" />
-    </div>
-    <div>
-      <label for="expense_type">Type:</label>
-      <input type="text" id="expense_type" name="expense_type" value="{{ expense_type_query }}" />
-    </div>
-    <div>
-      <label for="amount">Amount:</label>
-      <input type="number" id="amount" name="amount" value="{{ amount_query }}" />
-    </div>
-    <div>
-      <label for="date">Date:</label>
-      <input type="date" id="date" name="date" value="{{ date_query }}" />
-    </div>
-    <div>
-      <label for="description">Description:</label>
-      <input type="text" id="description" name="description" value="{{ description_query }}" />
-    </div>
-    <div>
-      <label for="frequency">Frequency:</label>
-      <input type="text" id="frequency" name="frequency" value="{{ frequency_query }}" />
-    </div>
-    <button type="submit">Search Expense</button>
-  </form>
+<div class="container mt-4">
+  <h1 class="mb-4 text-center">Search Expense</h1>
+    <form method="POST" class="border p-4 bg-light rounded shadow-sm">
+      {% csrf_token %}
+        <div class="mb-3">
+          <label for="expense_name" class="form-label">Name:</label>
+          <input type="text" id="expense_name" name="expense_name" value="{{ expense_name_query }}" />
+        </div>
+
+        <div class="mb-3">
+          <label for="expense_type" class="form-label">Type:</label>
+          <select id="expense_type" name="expense_type" class="form-control-sm">
+            <option value="">Any</option>
+            {% for value, label in type_choices %}
+              <option value="{{ value }}" {% if value == expense_type_query %}selected{% endif %}>{{ label }}</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <div class="mb-3">
+          <label for="amount" class="form-label">Amount:</label>
+          <input type="number" id="amount" name="amount" value="{{ amount_query }}" />
+        </div>
+        <div class="mb-3">
+          <label for="date" class="form-label">Date:</label>
+          <input type="date" id="date" name="date" value="{{ date_query }}" />
+        </div>
+        <div class="mb-3">
+          <label for="frequency" class="form-label">Frequency:</label>
+          <select id="frequency" name="frequency" class="form-control-sm">
+            <option value="">Any</option>
+            {% for value, label in frequency_choices %}
+              <option value="{{ value }}" {% if value == expense_frequency_query %}selected{% endif %}>{{ label }}</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <div class="mb-3 text-center">
+          <button type="submit" class="btn btn-primary btn-sm">Search Expense</button>
+        </div>
+    </form>
+  
 
   <!-- Search Results -->
   {% if expenses %}
-  <div>
-    <h2>Search Results</h2>
-    <p>Query: {{ expense_name_query }} {{ expense_type_query }} {{ amount_query }} {{ date_query }} {{ description_query }} {{ frequency_query }}</p>
-    <ul>
+  <div class="mt-4">
+    <h2 class="text-success text-center">Search Results</h2>
+    <p>{{ expense_name_query }} {{ expense_type_query }} {{ amount_query }} {{ date_query }} {{ frequency_query }}</p>
+    <ul class="list-group">
       {% for expense in expenses %}
-      <li>
-        <div>
-          <span>{{ expense.expense_name }}</span>
-          <span>{{ expense.expense_type }}</span>
-          <span>{{ expense.amount }}</span>
-          <span>{{ expense.date }}</span>
-          <span>{{ expense.description }}</span>
-          <span>{{ expense.frequency }}</span>
+      <li class="list-group-item d-flex justify-content-between align-items-center">
+        <div class="d-flex align-items-center">
+          <span style="
+              width: 200px;
+              overflow: hidden;
+              text-overflow: ellipsis;
+              white-space: nowrap;
+            ">{{ expense.expense_name }}</span>
+          <span style="
+              width: 200px;
+              overflow: hidden;
+              text-overflow: ellipsis;
+              white-space: nowrap;
+            ">{{ expense.expense_type }}</span>
+          <span style="
+              width: 200px;
+              overflow: hidden;
+              text-overflow: ellipsis;
+              white-space: nowrap;
+            ">{{ expense.amount }}</span>
+          <span style="
+              width: 200px;
+              overflow: hidden;
+              text-overflow: ellipsis;
+              white-space: nowrap;
+            ">{{ expense.date }}</span>
+          <span style="
+              width: 200px;
+              overflow: hidden;
+              text-overflow: ellipsis;
+              white-space: nowrap;
+            ">{{ expense.frequency }}</span>
         </div>
       </li>
       {% endfor %}
     </ul>
 
-    <!-- Pagination Controls -->
-    <nav>
-      <ul>
-        {% if expenses.has_previous %}
-        <li>
-          <a href="?page=1&expense_name={{ expense_name_query }}&expense_type={{ expense_type_query }}&amount={{ amount_query }}
-                    &date={{ date_query }}&frequency={{ frequency_query }}&description={{ description_query }}"
-            >First</a
-          >
-        </li>
-        <li>
-          <a
-            href="?page={{ expenses.previous_page_number }}&expense_name={{ expense_name_query }}&expense_type={{ expense_type_query }}&amount={{ amount_query }}
-                    &date={{ date_query }}&frequency={{ frequency_query }}&description={{ description_query }}"
-            >Previous</a
-          >
-        </li>
-        {% endif %}
-        <li>
-          <span>
-            Page {{ expenses.number }} of {{ expenses.paginator.num_pages }}
-          </span>
-        </li>
-        {% if expenses.has_next %}
-        <li>
-          <a
-            href="?page={{ expenses.previous_page_number }}&expense_name={{ expense_name_query }}&expense_type={{ expense_type_query }}&amount={{ amount_query }}
-                    &date={{ date_query }}&frequency={{ frequency_query }}&description={{ description_query }}"
-            >Next</a
-          >
-        </li>
-        <li>
-          <a
-            href="?page={{ expenses.previous_page_number }}&expense_name={{ expense_name_query }}&expense_type={{ expense_type_query }}&amount={{ amount_query }}
-                    &date={{ date_query }}&frequency={{ frequency_query }}&description={{ description_query }}"
-            >Last</a
-          >
-        </li>
-        {% endif %}
-      </ul>
-    </nav>
+    <!-- ============================= -->
+<!-- Pagination -->
+<!-- ============================= -->
+<nav aria-label="Page navigation" class="mt-4">
+  <ul class="pagination justify-content-center">
+
+    {% if expenses.has_previous %}
+    <li class="page-item">
+      <a class="page-link" href="?page={{ expenses.previous_page_number }}">
+      Previous
+      </a>
+    </li>
+    {% endif %}
+    <li class="page-item disabled">
+      <span class="page-link">
+        Page {{ expenses.number }} of {{ expenses.paginator.num_pages }}
+      </span>
+    </li>
+
+    {% if expenses.has_next %}
+    <li class="page-item">
+      <a class="page-link" href="?page={{ expenses.next_page_number }}">
+        Next
+      </a>
+    </li>
+    {% endif %}
+  </ul>
+</nav>
   </div>
 
   {% elif request.method == "POST" and not expenses %}
   <!-- No Results Message -->
-  <div>No expenses found. Please try again.</div>
+  <div class="alert alert-warning mt-4" role="alert">No expenses found. Please try again.</div>
   {% endif %}
 </div>
 {% endblock %}

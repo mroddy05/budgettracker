@@ -2,16 +2,24 @@
 {% block title %}Income Overview{% endblock %}
 
 {% block content %}
-<h1>Income Overview</h1>
-<p><strong>Total Monthly Income:</strong> ${{ total_income|default:"0.00" }}</p>
+<div class="container mt-4">
+<h1 class="mb-4 text-center">Income Overview</h1>
+<div class="mb-3r">
+    <div class="card bg-light p-2 text-center">
+        <h5><strong>Total Monthly Income:</strong> ${{ total_income|floatformat:2 }}</h5>
+    </div>
+</div>
 
-<hr>
 
-<h1>All Income</h1>
 
-<button onclick="toggleNew()">New Income</button>
+<h2 class="mb-4 text-center">All Income</h2>
+<div class="mb-3 text-center">
+    <button class="btn btn-primary btn-sm" onclick="toggleNew()">New Income</button>
+</div>
 
-<table border="1" cellpadding="8">
+<div class="table-responsive">
+  <table class="table table-bordered table-hover">
+    <thead class="table-light">
   <tr>
     <th>Name</th>
     <th>Amount</th>
@@ -19,20 +27,36 @@
     <th>Frequency</th>
     <th>Action</th>
   </tr>
+  </thead>
 
   <!-- Hidden Add Row -->
     <tr id="add_row"style="display: none;">
         <td colspan="6">
-            <form method="POST" action="{% url 'add_income' %}">
+            <form method="POST" action="{% url 'add_income' %}" class="mb-2">
                 {% csrf_token %}
-                <input type="text" name="income_name" >
-                <input type="number" name="amount" >
-                <input type="date" name="date" >
-                <input type="" name="frequency" value ="{{ income.frequency}}" >
-                <button type="submit">Add Income</button>
+                <p class="text-center mb-2"><strong>Name</strong></p>
+                <input type="text" name="income_name" class="form-control input_uniform" required>
+
+                <p class="text-center mb-2"><strong>Amount</strong></p>
+                <input type="number" name="amount" step="0.01" class="form-control input_uniform" required>
+
+                <p class="text-center mb-2"><strong>Date</strong></p>
+                <input type="date" name="date" class="form-control input_uniform" required>
+
+                <p class="text-center mb-2"><strong>Frequency</strong></p>
+
+                <select name="frequency" class="form-control form-control-sm input_uniform" required>
+                    {% for value, label in frequencyTypes %}
+                    <option value="{{ value }}" {% if value == "ONE" %}selected{% endif %}>{{ label }}</option>
+                    {% endfor %}
+                </select>
+
+                <div class="text-center">
+                    <button type="submit" class="btn btn-success btn-sm">Add Income</button>
+                </div>
             </form>
             <form>
-                <button type="button" onclick="toggleNew()">Cancel</button>
+                <button type="button" class="btn btn-danger btn-sm" onclick="toggleNew()">Cancel</button>
             </form>
         </td>
     </tr>
@@ -44,24 +68,36 @@
     <td>{{ income.date }}</td>
     <td>{{ income.frequency }}</td>
     <td>
-        <button onclick="toggleEdit({{ income.id }})">Edit</button>
+        <button class="btn btn-primary btn-sm" onclick="toggleEdit({{ income.id }})">Edit</button>
     </td>
     </tr>
 
     <!-- Hidden Edit Row -->
     <tr id="edit-row-{{ income.id }}" style="display: none;">
-        <td colspan="6">
-            <form method="POST" action="{% url 'edit_income' income.id incomes.number %}">
+        <td colspan="6" class="text-center">
+            <form method="POST" action="{% url 'edit_income' income.id incomes.number %}" class="width">
                 {% csrf_token %}
-                <input type="text" name="income_name" value="{{ income.income_name }}">
-                <input type="number" name="amount" value="{{ income.amount }}">
-                <input type="date" name="date" value="{{ income.date|date:'Y-m-d' }}">
-                <input type="text" name="frequency" value="{{ income.frequency }}">
-                <button type="submit">Save</button>
+
+                <p class="text-center mb-2"><strong>Name</strong></p>
+                <input type="text" name="income_name" value="{{ income.income_name }}" class="form-control input_uniform">
+
+                <p class="text-center mb-2"><strong>Amount</strong></p>
+                <input type="number" name="amount" value="{{ income.amount }}" step="0.01" class="form-control input_uniform">
+
+                <p class="text-center mb-2"><strong>Date</strong></p>
+                <input type="date" name="date" value="{{ income.date|date:'Y-m-d' }}" class="form-control input_uniform">
+
+                <p class="text-center mb-2"><strong>Frequency</strong></p>
+                <select id="frequency" name="frequency" class="form-control input_uniform">
+                    {% for value, label in frequencyTypes %}
+                    <option value="{{ value }}" {% if value == income.frequency %}selected{% endif %}>{{ label }}</option>
+                    {% endfor %}
+                </select>
+                <button type="submit" class="btn btn-primary btn-sm ">Save</button>
             </form>
-            <form method="POST" action="{% url 'delete_income' income.id incomes.number %}">
+            <form method="POST" action="{% url 'delete_income' income.id incomes.number %}" class="d-inline ">
                 {% csrf_token %}
-                <button type="submit" onclick="return confirm('Are you sure?')">Delete</button>
+                <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure?')">Delete</button>
             </form>
         </td>
     </tr>
@@ -72,6 +108,37 @@
     </tr>
   {% endfor %}
 </table>
+
+<!-- ============================= -->
+<!-- Pagination -->
+<!-- ============================= -->
+<nav aria-label="Page navigation" class="mt-4">
+  <ul class="pagination justify-content-center">
+
+    {% if incomes.has_previous %}
+    <li class="page-item">
+      <a class="page-link" href="?page={{ incomes.previous_page_number }}">
+      Previous
+      </a>
+    </li>
+    {% endif %}
+    <li class="page-item disabled">
+      <span class="page-link">
+        Page {{ incomes.number }} of {{ incomes.paginator.num_pages }}
+      </span>
+    </li>
+
+    {% if incomes.has_next %}
+    <li class="page-item">
+      <a class="page-link" href="?page={{ incomes.next_page_number }}">
+        Next
+      </a>
+    </li>
+    {% endif %}
+  </ul>
+</nav>
+
+</div>
 
 <script>
 function toggleEdit(id) {

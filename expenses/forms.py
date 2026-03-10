@@ -4,7 +4,7 @@ from .models import Expense
 class ExpenseForm(forms.ModelForm):
     class Meta:
         model = Expense
-        fields = ['expense_name', 'expense_type', 'amount', 'date', 'description', 'frequency']
+        fields = ['expense_name', 'expense_type', 'amount', 'date', 'frequency']
         # Apply CSS styles
         widgets = {
             'expense_name': forms.TextInput(attrs={
@@ -20,8 +20,4 @@ class ExpenseForm(forms.ModelForm):
                 'type': 'date',
                 },
                 format='%Y-%m-%d'),
-            'description': forms.TextInput(attrs={
-                'class': 'form-control',
-                'placeholder': 'Enter description of expense',
-                }),
         }
