@@ -79,7 +79,11 @@
                   <input type="text" name="expense_name" value="{{ expense.expense_name }}" class="form-control input_uniform">
 
                   <p class="text-center mb-2"><strong>Type</strong></p>
-                  <input type="text" name="expense_type" value="{{ expense.expense_type }}" class="form-control input_uniform">
+                  <select id="expense_type" name="expense_type" class="form-control input_uniform">
+                    {% for value, label in expenseTypes %}
+                    <option value="{{ value }}" {% if value == expense.expense_type %}selected{% endif %}>{{ label }}</option>
+                    {% endfor %}
+                  </select>
 
                   <p class="text-center mb-2"><strong>Amount</strong></p>
                   <input type="number" name="amount" value="{{ expense.amount }}" class="form-control input_uniform">
@@ -88,11 +92,15 @@
                   <input type="date" name="date" value="{{ expense.date|date:'Y-m-d' }}" class="form-control input_uniform">
 
                   <p class="text-center mb-2"><strong>Frequency</strong></p>
-                  <input type="text" name="frequency" value="{{ expense.frequency }}" class="form-control input_uniform">
+                  <select id="frequency" name="frequency" class="form-control input_uniform">
+                    {% for value, label in frequencyTypes %}
+                    <option value="{{ value }}" {% if value == expense.frequency %}selected{% endif %}>{{ label }}</option>
+                    {% endfor %}
+                  </select>
 
-                  <button type="submit" class="btn btn-success btn-sm">Save</button>
+                  <button type="submit" class="btn btn-success btn-sm save-button">Save</button>
               </form>
-              <form method="POST" class="d-inline" action="{% url 'delete_expense' expense.id expenses.number %}">
+              <form method="POST" action="{% url 'delete_expense' expense.id expenses.number %}">
                   {% csrf_token %}
                   <button type="submit" onclick="return confirm('Are you sure?')" class="btn btn-danger btn-sm">Delete</button>
               </form>
