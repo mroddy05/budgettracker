@@ -41,6 +41,10 @@
 
   <h2 class="mb-3 text-center">Expenses</h2>
 
+  {% if error_message %}
+    <p class="alert alert-danger mt-3 text-center"><bold>{{ error_message }}</bold></p>
+  {% endif %}   
+
   <div class="table-responsive">
   <table class="table table-bordered table-hover">
     <thead class="table-light">

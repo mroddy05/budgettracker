@@ -1,4 +1,5 @@
 from django.db import models
+from django import forms
 
 class Income(models.Model):
     frequencyTypes = [
@@ -11,5 +12,3 @@ class Income(models.Model):
     amount = models.DecimalField(max_digits=10, decimal_places=2)
     date = models.DateField()
     frequency = models.CharField(max_length=10, choices=frequencyTypes)
-    
-    

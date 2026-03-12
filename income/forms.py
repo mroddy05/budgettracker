@@ -14,6 +14,7 @@ class IncomeForm(forms.ModelForm):
             'amount': forms.NumberInput(attrs={
                 'class': 'form-control',
                 'placeholder': 'Enter amount',
+                
                 }),
             'date': forms.DateInput(attrs={
                 'class': 'form-control',

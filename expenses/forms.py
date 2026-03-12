@@ -14,6 +14,7 @@ class ExpenseForm(forms.ModelForm):
             'amount': forms.NumberInput(attrs={
                 'class': 'form-control',
                 'placeholder': 'Enter amount',
+                'min': '0',
                 }),
             'date': forms.DateInput(attrs={
                 'class': 'form-control',
@@ -21,3 +22,10 @@ class ExpenseForm(forms.ModelForm):
                 },
                 format='%Y-%m-%d'),
         }
+
+
+    # def clean_amount(self):
+    #     amount = self.cleaned_data.get('amount')
+    #     if  amount < 0:
+    #         raise forms.ValidationError("Amount can't be negative")
+    #     return amount

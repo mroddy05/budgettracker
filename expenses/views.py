@@ -1,6 +1,4 @@
-from django.shortcuts import render
 from django.shortcuts import render, get_object_or_404, redirect
-from django.http import HttpResponse
 from django.core.paginator import Paginator
 from .models import Expense
 from .forms import ExpenseForm
@@ -145,20 +143,28 @@ def index(request):
 def add_expense(request):
     success = False
     added_expense = None
+    error_message = None
 
     if request.method == "POST":
         form = ExpenseForm(request.POST)
         if form.is_valid():
-            new_expense = form.save()
-            success = True
-            added_expense = new_expense
+
+            amount = form.cleaned_data['amount']
+            if amount >= 0:
+                new_expense = form.save()
+                success = True
+                added_expense = new_expense
+            else:
+                error_message = "Amount can't be less than 0"
 
             return render(
                 request,
                 "add_expense.html", 
                 {"form": form,
                  "added_expense": added_expense,
-                 "success": success},
+                 "success": success,
+                 'error_message': error_message
+                 },
             )
     else:
         form = ExpenseForm()
@@ -167,7 +173,9 @@ def add_expense(request):
         "add_expense.html", 
         {"form": form,
          "added_expense": added_expense,
-         "success": success},
+         "success": success,
+         'error_message': error_message
+         },
     )
 
 def search_expense(request):
@@ -227,6 +235,7 @@ def edit_expense(request, expense_id, page_number):
     pn = request.GET.get("page", page_number)
     print(f"[DBG] edit_expense {expense_id}, {page_number}, {pn} <<<")
     success = False
+    error_message = ""
 
     if request.method == "POST":
         expense = Expense.objects.get(id=expense_id)
@@ -236,16 +245,18 @@ def edit_expense(request, expense_id, page_number):
         date = request.POST.get("date")
         frequency = request.POST.get("frequency")
 
-        
-
-        expense.expense_name = expense_name
-        expense.expense_type = expense_type
-        expense.amount = amount
-        expense.date = date
-        expense.frequency = frequency
-
-        expense.save()
-        success = True
+        if not amount:
+            error_message = "Amount is required"
+        elif float(amount) >= 0:
+            expense.expense_name = expense_name
+            expense.expense_type = expense_type
+            expense.amount = amount
+            expense.date = date
+            expense.frequency = frequency
+            expense.save()
+            success = True
+        else:
+            error_message = "Amount can't be negative"
 
     expense_list = Expense.objects.all().order_by("-date")
     paginator = Paginator(expense_list, 10)
@@ -266,6 +277,7 @@ def edit_expense(request, expense_id, page_number):
         "expenses": page_obj,
         "success": success,
         "updated_expense_id": expense_id,
+        "error_message": error_message,
     },
     )
 
