@@ -1,0 +1,17 @@
+[Unit]
+Description=gunicorn daemon
+Requires=gunicorn.socket
+After=network.target
+
+[Service]
+User=ubuntu
+Group=ubuntu
+WorkingDirectory=/home/ubuntu/tech-workspace
+ExecStart=/home/ubuntu/miniconda3/envs/dj_web/bin/gunicorn \
+   --access-logfile - \
+   --workers 3 \
+   --bind unix:/run/gunicorn.sock \
+   budgettracker.wsgi:application
+
+[Install]
+WantedBy=multi-user.target

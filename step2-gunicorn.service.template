@@ -1,0 +1,17 @@
+[Unit]
+Description=gunicorn daemon
+Requires=gunicorn.socket
+After=network.target
+
+[Service]
+User=__USER__
+Group=__USER__
+WorkingDirectory=__WORKSPACE__
+ExecStart=__GUNICORN_PATH__ \
+   --access-logfile - \
+   --workers 3 \
+   --bind unix:/run/gunicorn.sock \
+   __DJ_PRJ__.wsgi:application
+
+[Install]
+WantedBy=multi-user.target
